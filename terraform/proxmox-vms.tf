@@ -5,6 +5,7 @@ resource "proxmox_virtual_environment_vm" "control_plane" {
   node_name = var.proxmox_node
   vm_id     = 200
   started   = true
+  tags      = ["kubernetes", "vm"]
 
   # UEFI (OVMF) — consistent with other VMs on this host
   machine = "q35"
@@ -74,6 +75,7 @@ resource "proxmox_virtual_environment_vm" "worker" {
   node_name = var.proxmox_node
   vm_id     = each.value.vmid
   started   = true
+  tags      = ["kubernetes", "vm"]
 
   machine = "q35"
   bios    = "ovmf"

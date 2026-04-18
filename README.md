@@ -86,12 +86,15 @@ After a successful apply, save credentials and merge into your default kubeconfi
 ```bash
 terraform output -raw kubeconfig > ~/.kube/atlas-talos.kubeconfig
 terraform output -raw talosconfig > ~/.talos/atlas-talos.talosconfig
+# Remove stale entries (required on rebuild — new cluster has new certificates)
+kubectl config delete-context admin@atlas 2>/dev/null; kubectl config delete-cluster atlas 2>/dev/null; kubectl config delete-user admin@atlas 2>/dev/null; true
+# Merge and switch
 KUBECONFIG=~/.kube/config:~/.kube/atlas-talos.kubeconfig kubectl config view --flatten > ~/.kube/config-merged && mv ~/.kube/config-merged ~/.kube/config
 kubectl config use-context admin@atlas
 kubectl get nodes
 ```
 
-> **Rebuilding the cluster?** The VMs use pinned MAC addresses (`BC:24:11:00:02:00` for the control plane, `BC:24:11:00:02:01` for worker-01, etc.), so your DHCP reservations in UniFi remain valid across destroys. After `terraform apply`, re-run the 4 commands above to refresh the certificates in your kubeconfig.
+> **Rebuilding the cluster?** The VMs use pinned MAC addresses (`BC:24:11:00:02:00` for the control plane, `BC:24:11:00:02:01` for worker-01, etc.), so your DHCP reservations in UniFi remain valid across destroys. After `terraform apply`, re-run all the commands above — the delete step clears stale certificates from the previous cluster.
 
 ## Teardown
 
