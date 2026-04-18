@@ -1,0 +1,26 @@
+terraform {
+  cloud {
+    organization = "ACLABORG"
+    workspaces {
+      name = "atlas-talos"
+    }
+  }
+
+  required_providers {
+    proxmox = {
+      source  = "bpg/proxmox"
+      version = "~> 0.102"
+    }
+    talos = {
+      source  = "siderolabs/talos"
+      version = "~> 0.10"
+    }
+  }
+}
+
+provider "proxmox" {
+  endpoint  = var.proxmox_endpoint
+  api_token = var.proxmox_api_token
+  # Self-signed TLS cert on homelab Proxmox — disable verification
+  insecure = true
+}
