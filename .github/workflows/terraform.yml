@@ -1,0 +1,36 @@
+name: Terraform Lint
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+
+jobs:
+  validate:
+    name: Format & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1"
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive
+        working-directory: terraform
+
+      - name: terraform init
+        run: terraform init
+        working-directory: terraform
+
+      - name: terraform validate
+        run: terraform validate
+        working-directory: terraform
