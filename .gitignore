@@ -8,7 +8,9 @@ terraform.tfvars
 
 # Talos
 talosconfig
-*.yaml
+*.talosconfig
+controlplane.yaml
+worker.yaml
 
 # macOS
 .DS_Store
