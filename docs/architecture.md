@@ -11,11 +11,13 @@ This document describes the design decisions, infrastructure layout, and rationa
 | Component | Choice | Reason |
 |---|---|---|
 | Hypervisor | Proxmox VE 8.4.1 | Existing single-node homelab server |
-| OS | Talos Linux (latest stable) | Immutable, Kubernetes-native, minimal attack surface |
+| OS | Talos Linux v1.12 | Immutable, Kubernetes-native, minimal attack surface |
 | Terraform provider (Proxmox) | [`bpg/proxmox`](https://registry.terraform.io/providers/bpg/proxmox) | Best-maintained provider for PVE 8.x with full VM lifecycle support |
 | Terraform provider (Talos) | [`siderolabs/talos`](https://registry.terraform.io/providers/siderolabs/talos) | Official provider for generating and applying Talos machine configs |
 | CNI | Flannel | Simplest standard CNI; easy to migrate to Cilium later if needed |
 | Terraform state backend | Terraform Cloud (local exec mode) | State versioned and locked in the cloud; plan/apply runs locally to reach Proxmox |
+| GitOps | ArgoCD v3.x | Industry-standard GitOps controller; ApplicationSet for auto-discovery |
+| Storage | local-path-provisioner v0.0.30 | Simple dynamic PV provisioner using node-local disk; Talos has no default StorageClass |
 
 ## Cluster Topology
 
@@ -28,14 +30,14 @@ This document describes the design decisions, infrastructure layout, and rationa
 │  │  talos-cp (VM 200)       │   │
 │  │  Control Plane           │   │
 │  │  192.168.20.10           │   │
-│  │  2 vCPU / 4 GB / 50 GB  │   │
+│  │  2 vCPU / 4 GB / 20 GB  │   │
 │  └──────────────────────────┘   │
 │                                 │
 │  ┌──────────────────────────┐   │
 │  │  talos-worker-01 (VM 201)│   │
 │  │  Worker                  │   │
 │  │  192.168.20.11           │   │
-│  │  2 vCPU / 4 GB / 50 GB  │   │
+│  │  2 vCPU / 6 GB / 75 GB  │   │
 │  └──────────────────────────┘   │
 └─────────────────────────────────┘
 ```
@@ -62,7 +64,7 @@ DNS entries are managed in Pi-hole (`atlas-pihole.atlas.local`). Static IPs are 
 |---|---|---|
 | BIOS | OVMF (UEFI) | Consistent with other VMs on this Proxmox host; Talos supports and recommends UEFI |
 | EFI disk | 1M on `CRUCIAL_SSD_512GB` | Required for UEFI boot |
-| Main disk | 50 GB on `CRUCIAL_SSD_512GB` | Adequate for homelab etcd + workloads |
+| Main disk | CP: 20 GB, Worker: 75 GB on `CRUCIAL_SSD_512GB` | CP needs less disk; worker stores workload data and PVs |
 | Network driver | VirtIO | Best performance on Proxmox |
 | ISO storage | `local` | Where ISOs are stored on this Proxmox node |
 | VM disk storage | `CRUCIAL_SSD_512GB` | Primary SSD storage pool on this Proxmox node |
@@ -91,6 +93,41 @@ This avoids the main limitation of fully remote execution (Terraform Cloud runne
 | `talos.tf` | Generates Talos machine secrets, renders machine configs, applies configs to nodes, bootstraps etcd |
 | `outputs.tf` | Exports `talosconfig` and `kubeconfig` from Terraform state |
 
+## Platform Layer (GitOps)
+
+Once the cluster is bootstrapped, a GitOps platform layer manages all cluster services declaratively.
+
+### How It Works
+
+1. **ArgoCD** is installed in the `argocd` namespace and connected to this repo via an SSH deploy key
+2. A root **ApplicationSet** (`platform/appset.yaml`) uses a [git directory generator](https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/) to auto-discover subfolders under `platform/`
+3. Each subfolder becomes an ArgoCD Application with automated sync, self-heal, and prune enabled
+4. To deploy a new service: create a folder under `platform/`, add manifests, push to `main` — ArgoCD picks it up within ~3 minutes
+
+### Platform Components
+
+| Folder | Component | Notes |
+|---|---|---|
+| `local-path-provisioner/` | [Rancher local-path-provisioner](https://github.com/rancher/local-path-provisioner) v0.0.30 | Provides `local-path` StorageClass. Two Talos-specific patches applied (see below) |
+
+### Talos-Specific Gotchas
+
+| Issue | Cause | Fix |
+|---|---|---|
+| PVs fail to provision — path not writable | Talos `/opt` is read-only (immutable OS) | Changed ConfigMap path from `/opt/local-path-provisioner` to `/var/local-path-provisioner` |
+| Helper pods blocked by PodSecurity | Talos enforces `baseline` PodSecurity by default; helper pods use `hostPath` volumes | Added `pod-security.kubernetes.io/enforce: privileged` label to `local-path-storage` namespace |
+| ArgoCD syncs stale revision | ArgoCD revision cache doesn't pick up new commits immediately | Use hard refresh annotation: `argocd.argoproj.io/refresh: hard` |
+
+### ApplicationSet Design
+
+The root ApplicationSet uses Go templates (`goTemplate: true`). Key detail: the git directory generator provides `.path` as a **structured object**, not a string.
+
+| Template Variable | Value |
+|---|---|
+| `{{ .path.path }}` | Full path (e.g., `platform/local-path-provisioner`) |
+| `{{ .path.basename }}` | Folder name only (e.g., `local-path-provisioner`) |
+| `{{ .path.segments }}` | Path segments as a list |
+
 ## Deployment Flow
 
 ```
@@ -117,7 +154,9 @@ terraform apply
 
 ## Future Considerations
 
+- **Kratix**: Next platform addition — a framework for building internal developer platforms with Promises
 - **Additional workers**: Add IPs to `worker_ips` variable and add Pi-hole DNS entries
 - **CNI migration**: Flannel can be replaced with Cilium for eBPF-based networking and network policy support
 - **Talos Image Factory extensions**: Consider adding the QEMU guest agent extension for better Proxmox integration
 - **High availability**: Scaling to 3 control planes would require an external load balancer or virtual IP (e.g., kube-vip) in front of the API server
+- **Monitoring**: Prometheus + Grafana stack for cluster and workload observability

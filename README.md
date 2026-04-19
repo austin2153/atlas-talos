@@ -39,16 +39,20 @@ atlas-talos/
 ├── README.md
 ├── .gitignore
 ├── docs/
-│   └── architecture.md     # Design decisions and architecture overview
+│   └── architecture.md          # Design decisions and architecture overview
+├── platform/
+│   ├── appset.yaml              # Root ApplicationSet — auto-discovers subfolders
+│   └── local-path-provisioner/
+│       └── local-path-storage.yaml  # StorageClass + provisioner (Talos-patched)
 └── terraform/
-    ├── providers.tf         # TF Cloud backend + provider version pins
-    ├── variables.tf         # All input variables
-    ├── terraform.tfvars     # Your actual values (gitignored — never commit this)
-    ├── locals.tf            # Computed locals
-    ├── proxmox-image.tf     # Download Talos ISO to Proxmox storage
-    ├── proxmox-vms.tf       # Control plane + worker VM resources
-    ├── talos.tf             # Talos config generation, apply, and bootstrap
-    └── outputs.tf           # talosconfig + kubeconfig outputs
+    ├── providers.tf              # TF Cloud backend + provider version pins
+    ├── variables.tf              # All input variables
+    ├── terraform.tfvars          # Your actual values (gitignored — never commit this)
+    ├── locals.tf                 # Computed locals
+    ├── proxmox-image.tf          # Download Talos ISO to Proxmox storage
+    ├── proxmox-vms.tf            # Control plane + worker VM resources
+    ├── talos.tf                  # Talos config generation, apply, and bootstrap
+    └── outputs.tf                # talosconfig + kubeconfig outputs
 ```
 
 ## Configuration
@@ -95,6 +99,53 @@ kubectl get nodes
 ```
 
 > **Rebuilding the cluster?** The VMs use pinned MAC addresses (`BC:24:11:00:02:00` for the control plane, `BC:24:11:00:02:01` for worker-01, etc.), so your DHCP reservations in UniFi remain valid across destroys. After `terraform apply`, re-run all the commands above — the delete step clears stale certificates from the previous cluster.
+
+## Platform Layer (GitOps)
+
+After the cluster is running, the platform layer is managed via [ArgoCD](https://argo-cd.readthedocs.io/) and GitOps. Everything under `platform/` is auto-discovered and deployed.
+
+### ArgoCD Setup
+
+Install ArgoCD:
+
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side --force-conflicts
+```
+
+Create an SSH deploy key and add the public key to GitHub as a read-only deploy key:
+
+```bash
+ssh-keygen -t ed25519 -f ~/.ssh/argocd-atlas-talos -N "" -C "argocd-atlas-talos"
+```
+
+Create the repo secret in the cluster:
+
+```bash
+kubectl create secret generic atlas-talos-repo -n argocd \
+  --from-file=sshPrivateKey=$HOME/.ssh/argocd-atlas-talos \
+  --from-literal=url=git@github.com:austin2153/atlas-talos.git \
+  --from-literal=type=git
+kubectl label secret atlas-talos-repo -n argocd argocd.argoproj.io/secret-type=repository
+```
+
+Apply the root ApplicationSet:
+
+```bash
+kubectl apply -f platform/appset.yaml
+```
+
+From this point, any new folder added under `platform/` will be auto-discovered and deployed by ArgoCD within ~3 minutes.
+
+### Access ArgoCD UI
+
+```bash
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+# Get the admin password
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d
+```
+
+Then open https://localhost:8080 (admin / password from above).
 
 ## Teardown
 
