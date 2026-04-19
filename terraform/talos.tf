@@ -18,6 +18,12 @@ data "talos_machine_configuration" "control_plane" {
 
   config_patches = [
     yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "HostnameConfig"
+      hostname   = "talos-cp"
+      auto       = "off"
+    }),
+    yamlencode({
       machine = {
         network = {
           interfaces = [{
@@ -47,6 +53,12 @@ data "talos_machine_configuration" "worker" {
   machine_secrets  = talos_machine_secrets.this.machine_secrets
 
   config_patches = [
+    yamlencode({
+      apiVersion = "v1alpha1"
+      kind       = "HostnameConfig"
+      hostname   = each.key
+      auto       = "off"
+    }),
     yamlencode({
       machine = {
         network = {
