@@ -53,12 +53,11 @@ variable "talos_version" {
 
 variable "talos_schematic_id" {
   description = <<-EOT
-    Talos Image Factory schematic ID. The default is the 'no extensions' schematic
-    for amd64. To add extensions (e.g. QEMU guest agent), generate a custom schematic
-    at https://factory.talos.dev and replace this value.
+    Talos Image Factory schematic ID. Generated at https://factory.talos.dev.
+    Current schematic: amd64, no SecureBoot, qemu-guest-agent extension.
   EOT
   type    = string
-  default = "376567988ad370138ad8b2698212367b8edcb69b5fd68c80be1f2ec7d603b4ba"
+  default = "ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515"
 }
 
 variable "cluster_name" {
@@ -116,7 +115,7 @@ variable "control_plane_memory" {
 variable "control_plane_disk_size" {
   description = "Disk size in GB for the control plane VM"
   type        = number
-  default     = 50
+  default     = 20
 }
 
 variable "worker_cpu" {
@@ -128,11 +127,11 @@ variable "worker_cpu" {
 variable "worker_memory" {
   description = "RAM in MB per worker VM"
   type        = number
-  default     = 4096
+  default     = 6144
 }
 
 variable "worker_disk_size" {
   description = "Disk size in GB per worker VM"
   type        = number
-  default     = 50
+  default     = 75
 }
