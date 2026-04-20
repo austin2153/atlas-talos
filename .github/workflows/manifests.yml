@@ -1,6 +1,7 @@
 name: Manifest Validation
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - "platform/**"
