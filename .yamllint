@@ -1,5 +1,11 @@
 extends: default
 
+ignore: |
+  platform/cert-manager/cert-manager.yaml
+  platform/flux/flux.yaml
+  platform/kratix/kratix.yaml
+  platform/metallb/metallb-native.yaml
+
 rules:
   line-length: disable
   document-start: disable
