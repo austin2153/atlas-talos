@@ -1,0 +1,15 @@
+apiVersion: platform.kratix.io/v1alpha1
+kind: GitStateStore
+metadata:
+  name: default
+spec:
+  authMethod: basicAuth
+  branch: main
+  gitAuthor:
+    email: austincamp@gmail.com
+    name: kratix
+  path: state
+  secretRef:
+    name: kratix-state-writer
+    namespace: kratix-platform-system
+  url: https://github.com/austin2153/atlas-talos.git

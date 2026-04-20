@@ -1,0 +1,10 @@
+apiVersion: platform.kratix.io/v1alpha1
+kind: Destination
+metadata:
+  name: local-cluster
+  labels:
+    environment: local
+spec:
+  stateStoreRef:
+    name: default
+    kind: GitStateStore
