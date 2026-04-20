@@ -111,9 +111,9 @@ resource "proxmox_virtual_environment_vm" "worker" {
   }
 
   network_device {
-    bridge      = var.network_bridge
-    model       = "virtio"
-    vlan_id     = var.vlan_id
+    bridge  = var.network_bridge
+    model   = "virtio"
+    vlan_id = var.vlan_id
     # MAC is derived from VMID offset from 200 (CP=200 → :00, worker-01=201 → :01, etc.)
     # Assumes VMIDs 201–254 for workers; collisions occur if other VMs use IDs in that range.
     mac_address = format("BC:24:11:00:02:%02X", each.value.vmid - 200)

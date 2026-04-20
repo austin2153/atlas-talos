@@ -30,7 +30,7 @@ data "talos_machine_configuration" "control_plane" {
             deviceSelector = {
               driver = "virtio_net"
             }
-            dhcp = false
+            dhcp      = false
             addresses = ["${var.control_plane_ip}/${var.subnet_prefix}"]
             routes = [{
               network = "0.0.0.0/0"
@@ -66,7 +66,7 @@ data "talos_machine_configuration" "worker" {
             deviceSelector = {
               driver = "virtio_net"
             }
-            dhcp = false
+            dhcp      = false
             addresses = [each.value.cidr]
             routes = [{
               network = "0.0.0.0/0"

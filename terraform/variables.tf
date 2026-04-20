@@ -56,8 +56,8 @@ variable "talos_schematic_id" {
     Talos Image Factory schematic ID. Generated at https://factory.talos.dev.
     Current schematic: amd64, no SecureBoot, qemu-guest-agent extension.
   EOT
-  type    = string
-  default = "ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515"
+  type        = string
+  default     = "ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515"
 }
 
 variable "cluster_name" {

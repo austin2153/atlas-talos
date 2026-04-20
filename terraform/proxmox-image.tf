@@ -13,6 +13,6 @@ resource "proxmox_download_file" "talos_iso" {
   url       = local.talos_iso_url
   file_name = "talos-${var.talos_version}-metal-amd64.iso"
 
-  overwrite        = false
-  upload_timeout   = 600
+  overwrite      = false
+  upload_timeout = 600
 }
