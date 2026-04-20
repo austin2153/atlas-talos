@@ -38,12 +38,33 @@ terraform login
 atlas-talos/
 ├── README.md
 ├── .gitignore
+├── .yamllint                    # yamllint config for CI manifest validation
+├── .github/
+│   └── workflows/
+│       ├── terraform.yml        # Terraform fmt + validate on push
+│       └── manifests.yml        # YAML lint + kubeconform on platform/ changes
 ├── docs/
 │   └── architecture.md          # Design decisions and architecture overview
 ├── platform/
 │   ├── appset.yaml              # Root ApplicationSet — auto-discovers subfolders
-│   └── local-path-provisioner/
-│       └── local-path-storage.yaml  # StorageClass + provisioner (Talos-patched)
+│   ├── cert-manager/
+│   │   ├── cert-manager.yaml    # cert-manager v1.20.2 upstream manifest
+│   │   └── cluster-issuer.yaml  # Self-signed CA chain (selfsigned → root CA → atlas-ca)
+│   ├── flux/
+│   │   ├── flux.yaml            # Flux v2.8.5 upstream manifest
+│   │   ├── gitrepository.yaml   # Flux GitRepository watching atlas-talos main
+│   │   └── flux-kustomization.yaml  # Flux Kustomization applying state/ to cluster
+│   ├── kratix/
+│   │   ├── kratix.yaml          # Kratix v0.125.0 upstream manifest
+│   │   ├── git-state-store.yaml # GitStateStore pointing at state/ in this repo
+│   │   └── destination.yaml     # Registers local cluster as Kratix destination
+│   ├── local-path-provisioner/
+│   │   └── local-path-storage.yaml  # StorageClass + provisioner (Talos-patched)
+│   └── metallb/
+│       ├── metallb-native.yaml  # MetalLB v0.15.3 upstream manifest
+│       └── l2-config.yaml       # L2 advertisement pool (192.168.20.50-99)
+├── state/                       # Kratix writes workload manifests here; Flux applies them
+│   └── .gitkeep
 └── terraform/
     ├── providers.tf              # TF Cloud backend + provider version pins
     ├── variables.tf              # All input variables
@@ -136,6 +157,27 @@ kubectl apply -f platform/appset.yaml
 ```
 
 From this point, any new folder added under `platform/` will be auto-discovered and deployed by ArgoCD within ~3 minutes.
+
+### Platform Components
+
+| Component | Version | Purpose |
+|---|---|---|
+| local-path-provisioner | v0.0.30 | Default StorageClass using node-local disk |
+| MetalLB | v0.15.3 | L2 load balancer (pool: 192.168.20.50–99) |
+| cert-manager | v1.20.2 | TLS certificate management with self-signed CA chain |
+| Flux | v2.8.5 | GitOps operator — watches `state/` and applies Kratix-written manifests |
+| Kratix | v0.125.0 | Platform engineering framework; writes desired state to `state/` via GitStateStore |
+
+### Kratix Setup Notes
+
+Kratix requires write access to this repo to push manifests into `state/`. A GitHub fine-grained PAT (`kratix-state-writer`) with **Contents: Read and write** scope is stored as a Kubernetes secret in `kratix-platform-system`. This secret is created imperatively and is not committed to Git.
+
+```bash
+kubectl create secret generic kratix-state-writer \
+  --namespace kratix-platform-system \
+  --from-literal=username=<github-username> \
+  --from-literal=password=<github-pat>
+```
 
 ### Access ArgoCD UI
 

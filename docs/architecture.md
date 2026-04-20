@@ -18,6 +18,10 @@ This document describes the design decisions, infrastructure layout, and rationa
 | Terraform state backend | Terraform Cloud (local exec mode) | State versioned and locked in the cloud; plan/apply runs locally to reach Proxmox |
 | GitOps | ArgoCD v3.x | Industry-standard GitOps controller; ApplicationSet for auto-discovery |
 | Storage | local-path-provisioner v0.0.30 | Simple dynamic PV provisioner using node-local disk; Talos has no default StorageClass |
+| Load balancer | MetalLB v0.15.3 | L2 load balancer providing external IPs for LoadBalancer services (pool: 192.168.20.50–99) |
+| TLS | cert-manager v1.20.2 | Certificate management; bootstraps a self-signed CA chain for cluster-internal TLS |
+| GitOps state sync | Flux v2.8.5 | Watches `state/` directory in this repo and applies Kratix-written manifests to the cluster |
+| Platform engineering | Kratix v0.125.0 | Promise-based internal platform framework; writes workload manifests to `state/` via GitStateStore |
 
 ## Cluster Topology
 
@@ -108,7 +112,11 @@ Once the cluster is bootstrapped, a GitOps platform layer manages all cluster se
 
 | Folder | Component | Notes |
 |---|---|---|
-| `local-path-provisioner/` | [Rancher local-path-provisioner](https://github.com/rancher/local-path-provisioner) v0.0.30 | Provides `local-path` StorageClass. Two Talos-specific patches applied (see below) |
+| `local-path-provisioner/` | [Rancher local-path-provisioner](https://github.com/rancher/local-path-provisioner) v0.0.30 | Provides `local-path` default StorageClass. Two Talos-specific patches applied (see below) |
+| `metallb/` | [MetalLB](https://metallb.io/) v0.15.3 | L2 mode load balancer; IP pool 192.168.20.50–99; upstream manifest + custom L2 config |
+| `cert-manager/` | [cert-manager](https://cert-manager.io/) v1.20.2 | TLS management; bootstraps selfsigned → root CA → `atlas-ca` ClusterIssuer chain using ArgoCD sync waves |
+| `flux/` | [Flux](https://fluxcd.io/) v2.8.5 | Source-controller watches this repo; kustomize-controller applies `state/` to cluster. Auth via `flux-system-auth` secret (SSH) |
+| `kratix/` | [Kratix](https://kratix.io/) v0.125.0 | Platform engineering framework. GitStateStore writes to `state/`; Destination registers local cluster. Auth via `kratix-state-writer` secret (HTTPS PAT) |
 
 ### Talos-Specific Gotchas
 
@@ -154,9 +162,10 @@ terraform apply
 
 ## Future Considerations
 
-- **Kratix**: Next platform addition — a framework for building internal developer platforms with Promises
+- **Kratix Promises**: Kratix is installed — next step is authoring and installing Promises to validate the full GitOps loop (Promise → ResourceRequest → state/ → Flux → cluster)
 - **Additional workers**: Add IPs to `worker_ips` variable and add Pi-hole DNS entries
 - **CNI migration**: Flannel can be replaced with Cilium for eBPF-based networking and network policy support
 - **Talos Image Factory extensions**: Consider adding the QEMU guest agent extension for better Proxmox integration
 - **High availability**: Scaling to 3 control planes would require an external load balancer or virtual IP (e.g., kube-vip) in front of the API server
 - **Monitoring**: Prometheus + Grafana stack for cluster and workload observability
+- **Shared storage**: Ceph/Rook for distributed storage across multiple nodes (requires additional disks or nodes)
