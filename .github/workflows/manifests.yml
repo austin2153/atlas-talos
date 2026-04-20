@@ -1,0 +1,40 @@
+name: Manifest Validation
+
+on:
+  pull_request:
+    paths:
+      - "platform/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "platform/**"
+
+jobs:
+  validate:
+    name: Lint & Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: YAML lint
+        run: yamllint platform/
+
+      - name: Install kubeconform
+        run: |
+          curl -sL https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar xz
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate Kubernetes manifests
+        run: |
+          kubeconform \
+            -strict \
+            -ignore-missing-schemas \
+            -schema-location default \
+            -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json' \
+            -summary \
+            platform/
