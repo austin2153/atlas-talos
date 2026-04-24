@@ -1,0 +1,4 @@
+apiVersion: example.io/v1alpha1
+kind: WeatherRequest
+metadata:
+  name: example-weather
