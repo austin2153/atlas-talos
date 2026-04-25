@@ -14,3 +14,7 @@ worker.yaml
 
 # macOS
 .DS_Store
+
+# Kratix pipeline test output
+platform/kratix/promises/*/test/output/*
+!platform/kratix/promises/*/test/output/.gitkeep
