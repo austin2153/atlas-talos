@@ -1,0 +1,4 @@
+apiVersion: demo.kratix.io/v1alpha1
+kind: Database
+metadata:
+  name: example-database
