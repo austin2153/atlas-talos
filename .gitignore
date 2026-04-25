@@ -18,3 +18,6 @@ worker.yaml
 # Kratix pipeline test output
 platform/kratix/promises/*/test/output/*
 !platform/kratix/promises/*/test/output/.gitkeep
+
+# Python virtual environments
+.venv/

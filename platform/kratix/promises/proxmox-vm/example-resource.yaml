@@ -1,0 +1,7 @@
+apiVersion: atlas.local/v1alpha1
+kind: ProxmoxVM
+metadata:
+  name: example-proxmox-vm
+spec:
+  cores: 2
+  memory: 2048
