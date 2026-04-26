@@ -43,7 +43,16 @@ spec:
   workflows:
     config: {}
     promise: {}
-    resource: {}
+    resource:
+      configure:
+      - apiVersion: platform.kratix.io/v1alpha1
+        kind: Pipeline
+        metadata:
+          name: proxmox-vm-configure
+        spec:
+          containers:
+          - image: ghcr.io/austin2153/proxmox-vm-pipeline:v0.1.0
+            name: ghcr-io-austin2153-proxmox-vm-pipeline
 status:
   workflows: 0
   workflowsFailed: 0

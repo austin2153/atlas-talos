@@ -1,0 +1,8 @@
+apiVersion: atlas.local/v1alpha1
+kind: ProxmoxVM
+metadata:
+  name: test-vm
+  namespace: default
+spec:
+  cores: 1
+  memory: 512
