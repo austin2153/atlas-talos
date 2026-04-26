@@ -21,3 +21,7 @@ platform/kratix/promises/*/test/output/*
 
 # Python virtual environments
 .venv/
+
+# Python cache
+__pycache__/
+*.pyc
