@@ -26,10 +26,6 @@ platform/kratix/promises/*/test/output/*
 __pycache__/
 *.pyc
 
-# Kratix pipeline test output
-platform/kratix/promises/*/workflows/**/tests/output/*
-platform/kratix/promises/*/workflows/**/tests/metadata/*
-platform/kratix/promises/*/workflows/**/tests/input/*
-!platform/kratix/promises/*/workflows/**/tests/output/.gitkeep
-!platform/kratix/promises/*/workflows/**/tests/metadata/.gitkeep
-!platform/kratix/promises/*/workflows/**/tests/input/.gitkeep
+# Kratix pipeline local development output
+platform/kratix/promises/*/workflows/**/scripts/local/output/*
+platform/kratix/promises/*/workflows/**/scripts/local/metadata/*
