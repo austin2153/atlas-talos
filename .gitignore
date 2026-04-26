@@ -25,3 +25,11 @@ platform/kratix/promises/*/test/output/*
 # Python cache
 __pycache__/
 *.pyc
+
+# Kratix pipeline test output
+platform/kratix/promises/*/workflows/**/tests/output/*
+platform/kratix/promises/*/workflows/**/tests/metadata/*
+platform/kratix/promises/*/workflows/**/tests/input/*
+!platform/kratix/promises/*/workflows/**/tests/output/.gitkeep
+!platform/kratix/promises/*/workflows/**/tests/metadata/.gitkeep
+!platform/kratix/promises/*/workflows/**/tests/input/.gitkeep
