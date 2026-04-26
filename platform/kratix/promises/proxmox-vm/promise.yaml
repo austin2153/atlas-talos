@@ -43,7 +43,7 @@ spec:
           imagePullSecrets:
           - name: ghcr-pull-secret
           containers:
-          - image: ghcr.io/austin2153/proxmox-vm-pipeline:v0.1.1
+          - image: ghcr.io/austin2153/proxmox-vm-pipeline:v0.1.2
             name: ghcr-io-austin2153-proxmox-vm-pipeline
             envFrom:
             - secretRef:
@@ -57,7 +57,7 @@ spec:
           imagePullSecrets:
           - name: ghcr-pull-secret
           containers:
-          - image: ghcr.io/austin2153/proxmox-vm-pipeline:v0.1.1
+          - image: ghcr.io/austin2153/proxmox-vm-pipeline:v0.1.2
             name: ghcr-io-austin2153-proxmox-vm-pipeline
             envFrom:
             - secretRef:

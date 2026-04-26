@@ -3,6 +3,7 @@ import os
 import requests
 import logging
 import urllib3
+import yaml
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -92,6 +93,7 @@ def main():
     resource = sdk.read_resource_input()
 
     name = resource.get_name()
+    namespace = resource.get_namespace()
     api_token = os.environ.get("PROXMOX_API_TOKEN")
     if not api_token:
         raise RuntimeError("PROXMOX_API_TOKEN environment variable not set")
@@ -134,6 +136,24 @@ def main():
             status.set("vmName", name)
             status.set("message", "VM creation initiated")
             sdk.write_status(status)
+
+            logging.info("Writing VM details ConfigMap to output")
+            configmap = {
+                "apiVersion": "v1",
+                "kind": "ConfigMap",
+                "metadata": {
+                    "name": f"{name}-details",
+                    "namespace": namespace,
+                },
+                "data": {
+                    "vmId": str(vmid),
+                    "vmName": name,
+                    "cores": str(cores),
+                    "memory": str(memory),
+                    "status": "created",
+                },
+            }
+            sdk.write_output("vm-details.yaml", yaml.safe_dump(configmap).encode("utf-8"))
 
     logging.info("Pipeline complete")
 
