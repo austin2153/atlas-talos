@@ -48,3 +48,17 @@ spec:
             envFrom:
             - secretRef:
                 name: proxmox-credentials
+      delete:
+      - apiVersion: platform.kratix.io/v1alpha1
+        kind: Pipeline
+        metadata:
+          name: proxmox-vm-delete
+        spec:
+          imagePullSecrets:
+          - name: ghcr-pull-secret
+          containers:
+          - image: ghcr.io/austin2153/proxmox-vm-pipeline:v0.1.0
+            name: ghcr-io-austin2153-proxmox-vm-pipeline
+            envFrom:
+            - secretRef:
+                name: proxmox-credentials

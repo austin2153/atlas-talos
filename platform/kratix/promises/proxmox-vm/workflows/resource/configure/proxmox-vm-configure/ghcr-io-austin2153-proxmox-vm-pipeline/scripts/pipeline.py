@@ -69,7 +69,21 @@ def create_vm(api_token, name, cores, memory):
     response.raise_for_status()
     result = response.json()
     logging.info(f"Proxmox accepted VM creation — task ID: {result.get('data')}")
-    return result
+    return vmid, result
+
+
+def delete_vm(api_token, vmid, name):
+    logging.info(f"Deleting VM '{name}' with ID {vmid} from Proxmox")
+    url = f"{PROXMOX_HOST}/api2/json/nodes/{PROXMOX_NODE}/qemu/{vmid}"
+    headers = {
+        "Authorization": f"PVEAPIToken={api_token}",
+        "Content-Type": "application/json",
+    }
+    response = requests.delete(url, headers=headers, verify=False, timeout=10)
+    response.raise_for_status()
+    task_id = response.json().get("data")
+    logging.info(f"Proxmox accepted VM deletion — task ID: {task_id}")
+    return task_id
 
 
 def main():
@@ -78,32 +92,48 @@ def main():
     resource = sdk.read_resource_input()
 
     name = resource.get_name()
-    cores = resource.get_value("spec.cores")
-    memory = resource.get_value("spec.memory")
-    logging.info(f"Resource request: name={name} cores={cores} memory={memory}")
-
     api_token = os.environ.get("PROXMOX_API_TOKEN")
     if not api_token:
         raise RuntimeError("PROXMOX_API_TOKEN environment variable not set")
 
-    existing_vm = find_existing_vm(api_token, name)
+    if sdk.is_delete_action():
+        logging.info(f"Delete action detected for VM '{name}'")
+        vmid = resource.get_value("status.vmId")
+        if not vmid:
+            logging.info(f"No vmId in status — looking up VM '{name}' by name")
+            existing_vm = find_existing_vm(api_token, name)
+            if existing_vm:
+                vmid = str(existing_vm["vmid"])
+            else:
+                logging.info(f"VM '{name}' not found in Proxmox — nothing to delete")
+                logging.info("Pipeline complete")
+                return
+        delete_vm(api_token, vmid, name)
 
-    if existing_vm:
-        logging.info(f"VM '{name}' already exists — skipping creation")
-        status = ks.Status()
-        status.set("vmId", str(existing_vm["vmid"]))
-        status.set("vmName", name)
-        status.set("message", "VM already exists")
-        sdk.write_status(status)
     else:
-        result = create_vm(api_token, name, cores, memory)
-        task_id = result.get("data")
-        logging.info("Writing status back to resource")
-        status = ks.Status()
-        status.set("taskId", task_id)
-        status.set("vmName", name)
-        status.set("message", "VM creation initiated")
-        sdk.write_status(status)
+        cores = resource.get_value("spec.cores")
+        memory = resource.get_value("spec.memory")
+        logging.info(f"Configure action: name={name} cores={cores} memory={memory}")
+
+        existing_vm = find_existing_vm(api_token, name)
+
+        if existing_vm:
+            logging.info(f"VM '{name}' already exists — skipping creation")
+            status = ks.Status()
+            status.set("vmId", str(existing_vm["vmid"]))
+            status.set("vmName", name)
+            status.set("message", "VM already exists")
+            sdk.write_status(status)
+        else:
+            vmid, result = create_vm(api_token, name, cores, memory)
+            task_id = result.get("data")
+            logging.info("Writing status back to resource")
+            status = ks.Status()
+            status.set("vmId", str(vmid))
+            status.set("taskId", task_id)
+            status.set("vmName", name)
+            status.set("message", "VM creation initiated")
+            sdk.write_status(status)
 
     logging.info("Pipeline complete")
 

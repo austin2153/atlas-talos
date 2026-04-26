@@ -6,3 +6,7 @@ metadata:
 spec:
   cores: 1
   memory: 512
+status:
+  vmId: "101"
+  vmName: test-vm
+  message: VM creation initiated
