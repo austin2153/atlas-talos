@@ -1,0 +1,11 @@
+apiVersion: v1
+data:
+  cores: '2'
+  memory: '2048'
+  status: created
+  vmId: '101'
+  vmName: example-proxmox-vm
+kind: ConfigMap
+metadata:
+  name: example-proxmox-vm-details
+  namespace: atlas-local
