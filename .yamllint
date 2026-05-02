@@ -1,6 +1,7 @@
 extends: default
 
 ignore: |
+  platform/argocd/argocd.yaml
   platform/cert-manager/cert-manager.yaml
   platform/flux/flux.yaml
   platform/kratix/kratix.yaml
