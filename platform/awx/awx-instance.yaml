@@ -11,3 +11,6 @@ spec:
   postgres_storage_requirements:
     requests:
       storage: 8Gi
+  postgres_security_context:
+    runAsUser: 26
+    fsGroup: 26
