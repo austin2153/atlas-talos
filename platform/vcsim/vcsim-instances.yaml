@@ -1,0 +1,259 @@
+---
+# vcenter-usoma11-prod-01
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcenter-usoma11-prod-01
+  namespace: vcsim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcenter-usoma11-prod-01
+  template:
+    metadata:
+      labels:
+        app: vcenter-usoma11-prod-01
+    spec:
+      containers:
+      - name: vcsim
+        image: vmware/vcsim:latest
+        args: ["-l", "0.0.0.0:443"]
+        ports:
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcenter-usoma11-prod-01
+  namespace: vcsim
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.52
+  selector:
+    app: vcenter-usoma11-prod-01
+  ports:
+  - port: 443
+    targetPort: 443
+---
+# vcenter-usoma11-prod-02
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcenter-usoma11-prod-02
+  namespace: vcsim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcenter-usoma11-prod-02
+  template:
+    metadata:
+      labels:
+        app: vcenter-usoma11-prod-02
+    spec:
+      containers:
+      - name: vcsim
+        image: vmware/vcsim:latest
+        args: ["-l", "0.0.0.0:443"]
+        ports:
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcenter-usoma11-prod-02
+  namespace: vcsim
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.53
+  selector:
+    app: vcenter-usoma11-prod-02
+  ports:
+  - port: 443
+    targetPort: 443
+---
+# vcenter-usoma11-nonprod-01
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcenter-usoma11-nonprod-01
+  namespace: vcsim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcenter-usoma11-nonprod-01
+  template:
+    metadata:
+      labels:
+        app: vcenter-usoma11-nonprod-01
+    spec:
+      containers:
+      - name: vcsim
+        image: vmware/vcsim:latest
+        args: ["-l", "0.0.0.0:443"]
+        ports:
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcenter-usoma11-nonprod-01
+  namespace: vcsim
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.54
+  selector:
+    app: vcenter-usoma11-nonprod-01
+  ports:
+  - port: 443
+    targetPort: 443
+---
+# vcenter-usjc201-prod-01
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcenter-usjc201-prod-01
+  namespace: vcsim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcenter-usjc201-prod-01
+  template:
+    metadata:
+      labels:
+        app: vcenter-usjc201-prod-01
+    spec:
+      containers:
+      - name: vcsim
+        image: vmware/vcsim:latest
+        args: ["-l", "0.0.0.0:443"]
+        ports:
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcenter-usjc201-prod-01
+  namespace: vcsim
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.55
+  selector:
+    app: vcenter-usjc201-prod-01
+  ports:
+  - port: 443
+    targetPort: 443
+---
+# vcenter-usjc201-prod-02
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcenter-usjc201-prod-02
+  namespace: vcsim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcenter-usjc201-prod-02
+  template:
+    metadata:
+      labels:
+        app: vcenter-usjc201-prod-02
+    spec:
+      containers:
+      - name: vcsim
+        image: vmware/vcsim:latest
+        args: ["-l", "0.0.0.0:443"]
+        ports:
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcenter-usjc201-prod-02
+  namespace: vcsim
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.56
+  selector:
+    app: vcenter-usjc201-prod-02
+  ports:
+  - port: 443
+    targetPort: 443
+---
+# vcenter-uschd01-prod-01
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcenter-uschd01-prod-01
+  namespace: vcsim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcenter-uschd01-prod-01
+  template:
+    metadata:
+      labels:
+        app: vcenter-uschd01-prod-01
+    spec:
+      containers:
+      - name: vcsim
+        image: vmware/vcsim:latest
+        args: ["-l", "0.0.0.0:443"]
+        ports:
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcenter-uschd01-prod-01
+  namespace: vcsim
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.57
+  selector:
+    app: vcenter-uschd01-prod-01
+  ports:
+  - port: 443
+    targetPort: 443
+---
+# vcenter-uschd01-nonprod-01
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vcenter-uschd01-nonprod-01
+  namespace: vcsim
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vcenter-uschd01-nonprod-01
+  template:
+    metadata:
+      labels:
+        app: vcenter-uschd01-nonprod-01
+    spec:
+      containers:
+      - name: vcsim
+        image: vmware/vcsim:latest
+        args: ["-l", "0.0.0.0:443"]
+        ports:
+        - containerPort: 443
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vcenter-uschd01-nonprod-01
+  namespace: vcsim
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 192.168.20.58
+  selector:
+    app: vcenter-uschd01-nonprod-01
+  ports:
+  - port: 443
+    targetPort: 443
