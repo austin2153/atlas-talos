@@ -54,15 +54,23 @@ atlas-talos/
 │   │   ├── flux.yaml            # Flux v2.8.5 upstream manifest
 │   │   ├── gitrepository.yaml   # Flux GitRepository watching atlas-talos main
 │   │   └── flux-kustomization.yaml  # Flux Kustomization applying state/ to cluster
+│   ├── awx/
+│   │   ├── awx-operator.yaml    # AWX operator manifest
+│   │   └── awx-instance.yaml    # AWX instance resource
 │   ├── kratix/
 │   │   ├── kratix.yaml          # Kratix v0.125.0 upstream manifest
 │   │   ├── git-state-store.yaml # GitStateStore pointing at state/ in this repo
-│   │   └── destination.yaml     # Registers local cluster as Kratix destination
+│   │   ├── destination.yaml     # Registers local cluster as Kratix destination
+│   │   └── promises/
+│   │       └── proxmox-vm/      # Promise: provision Proxmox VMs on demand
 │   ├── local-path-provisioner/
 │   │   └── local-path-storage.yaml  # StorageClass + provisioner (Talos-patched)
-│   └── metallb/
-│       ├── metallb-native.yaml  # MetalLB v0.15.3 upstream manifest
-│       └── l2-config.yaml       # L2 advertisement pool (192.168.20.50-99)
+│   ├── metallb/
+│   │   ├── metallb-native.yaml  # MetalLB v0.15.3 upstream manifest
+│   │   └── l2-config.yaml       # L2 advertisement pool (192.168.20.50-99)
+│   └── vcsim/
+│       ├── namespace.yaml       # Namespace for vcsim instances
+│       └── vcsim-instances.yaml # VMware vCenter simulator deployments
 ├── state/                       # Kratix writes workload manifests here; Flux applies them
 │   └── .gitkeep
 └── terraform/
@@ -167,6 +175,16 @@ From this point, any new folder added under `platform/` will be auto-discovered 
 | cert-manager | v1.20.2 | TLS certificate management with self-signed CA chain |
 | Flux | v2.8.5 | GitOps operator — watches `state/` and applies Kratix-written manifests |
 | Kratix | v0.125.0 | Platform engineering framework; writes desired state to `state/` via GitStateStore |
+| AWX | latest | Ansible automation UI (AWX operator + instance) |
+| vcsim | latest | VMware vCenter simulator instances for testing |
+
+### Kratix Promises
+
+Promises are defined under `platform/kratix/promises/`. Each promise is a Kratix CRD that, when a resource is requested, triggers a workflow to fulfill it.
+
+| Promise | Description |
+|---|---|
+| `proxmox-vm` | Provisions a Proxmox VM on demand via a Python-based workflow |
 
 ### Kratix Setup Notes
 

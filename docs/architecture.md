@@ -26,24 +26,24 @@ This document describes the design decisions, infrastructure layout, and rationa
 ## Cluster Topology
 
 ```
-┌─────────────────────────────────┐
-│         Proxmox VE 8.4.1        │
-│         (single node)           │
-│                                 │
-│  ┌──────────────────────────┐   │
-│  │  talos-cp (VM 200)       │   │
-│  │  Control Plane           │   │
-│  │  192.168.20.10           │   │
-│  │  2 vCPU / 4 GB / 20 GB  │   │
-│  └──────────────────────────┘   │
-│                                 │
-│  ┌──────────────────────────┐   │
-│  │  talos-worker-01 (VM 201)│   │
-│  │  Worker                  │   │
-│  │  192.168.20.11           │   │
-│  │  2 vCPU / 6 GB / 75 GB  │   │
-│  └──────────────────────────┘   │
-└─────────────────────────────────┘
+┌───────────────────────────────────┐
+│         Proxmox VE 8.4.1          │
+│         (single node)             │
+│                                   │
+│  ┌────────────────────────────┐   │
+│  │  talos-cp (VM 200)         │   │
+│  │  Control Plane             │   │
+│  │  192.168.20.10             │   │
+│  │  2 vCPU / 4 GB / 20 GB     │   │
+│  └────────────────────────────┘   │
+│                                   │
+│  ┌────────────────────────────┐   │
+│  │  talos-worker-01 (VM 201)  │   │
+│  │  Worker                    │   │
+│  │  192.168.20.11             │   │
+│  │  2 vCPU / 6 GB / 75 GB     │   │
+│  └────────────────────────────┘   │
+└───────────────────────────────────┘
 ```
 
 Starting with 1 control plane and 1 worker. The worker count is designed to scale — adding a second worker means adding another IP reservation and a new entry in the `worker_ips` variable.
