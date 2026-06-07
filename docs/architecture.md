@@ -118,7 +118,7 @@ Once the cluster is bootstrapped, a GitOps platform layer manages all cluster se
 | `flux/` | [Flux](https://fluxcd.io/) v2.8.5 | Source-controller watches this repo; kustomize-controller applies `state/` to cluster. Auth via `flux-system-auth` secret (SSH) |
 | `kratix/` | [Kratix](https://kratix.io/) v0.125.0 | Platform engineering framework. GitStateStore writes to `state/`; Destination registers local cluster. Auth via `kratix-state-writer` secret (HTTPS PAT) |
 | `awx/` | AWX 24.6.1 | Ansible automation UI. Operator + instance pattern; postgres backend on local-path PV. Admin password in `awx-admin-password` secret |
-| `vcsim/` | vmware/vcsim:latest | VMware vCenter simulator instances for testing. 7 instances across prod/nonprod sites (192.168.20.52–58) |
+| `vcsim/` | vmware/vcsim:latest | VMware vCenter simulator instances for testing. 4 instances: vcenter-01–04 (192.168.20.52–55) |
 
 ### Talos-Specific Gotchas
 
