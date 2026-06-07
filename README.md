@@ -6,6 +6,8 @@ See [docs/architecture.md](docs/architecture.md) for design decisions, network l
 
 See [docs/unifi-access.md](docs/unifi-access.md) for how to connect to the UniFi controller.
 
+See [docs/proxmox-access.md](docs/proxmox-access.md) for how to connect to the Proxmox server.
+
 ## Cluster Overview
 
 | Role | Hostname | IP |
