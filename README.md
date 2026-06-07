@@ -4,6 +4,8 @@ Terraform code to deploy a [Talos Linux](https://www.talos.dev/) Kubernetes clus
 
 See [docs/architecture.md](docs/architecture.md) for design decisions, network layout, and rationale.
 
+See [docs/unifi-access.md](docs/unifi-access.md) for how to connect to the UniFi controller.
+
 ## Cluster Overview
 
 | Role | Hostname | IP |
