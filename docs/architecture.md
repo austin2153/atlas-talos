@@ -117,6 +117,8 @@ Once the cluster is bootstrapped, a GitOps platform layer manages all cluster se
 | `cert-manager/` | [cert-manager](https://cert-manager.io/) v1.20.2 | TLS management; bootstraps selfsigned → root CA → `atlas-ca` ClusterIssuer chain using ArgoCD sync waves |
 | `flux/` | [Flux](https://fluxcd.io/) v2.8.5 | Source-controller watches this repo; kustomize-controller applies `state/` to cluster. Auth via `flux-system-auth` secret (SSH) |
 | `kratix/` | [Kratix](https://kratix.io/) v0.125.0 | Platform engineering framework. GitStateStore writes to `state/`; Destination registers local cluster. Auth via `kratix-state-writer` secret (HTTPS PAT) |
+| `awx/` | AWX 24.6.1 | Ansible automation UI. Operator + instance pattern; postgres backend on local-path PV. Admin password in `awx-admin-password` secret |
+| `vcsim/` | vmware/vcsim:latest | VMware vCenter simulator instances for testing. 7 instances across prod/nonprod sites (192.168.20.52–58) |
 
 ### Talos-Specific Gotchas
 
@@ -162,7 +164,8 @@ terraform apply
 
 ## Future Considerations
 
-- **Kratix Promises**: Kratix is installed — next step is authoring and installing Promises to validate the full GitOps loop (Promise → ResourceRequest → state/ → Flux → cluster)
+- **Kratix Promises**: First promise (`proxmox-vm`) is installed and operational — provisions Proxmox VMs on demand via a Python-based workflow. Next step is expanding the promise catalog and exercising the full loop (ResourceRequest → state/ → Flux → cluster)
+- **Stateful workload resilience**: AWX postgres runs on a local-path PV; unclean node shutdowns can cause `initdb` to re-initialize an empty data directory, requiring a manual migration job re-run. Consider postgres backups or a more durable StorageClass for stateful workloads
 - **Additional workers**: Add IPs to `worker_ips` variable and add Pi-hole DNS entries
 - **CNI migration**: Flannel can be replaced with Cilium for eBPF-based networking and network policy support
 - **Talos Image Factory extensions**: Consider adding the QEMU guest agent extension for better Proxmox integration
