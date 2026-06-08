@@ -18,7 +18,7 @@ spec:
       containers:
       - name: vcsim
         image: vmware/vcsim:latest
-        args: ["-l", "0.0.0.0:443"]
+        args: ["-l", "0.0.0.0:443", "-dc", "1", "-cluster", "3", "-host", "2", "-vm", "10", "-ds", "2"]
         ports:
         - containerPort: 443
 ---
@@ -55,7 +55,7 @@ spec:
       containers:
       - name: vcsim
         image: vmware/vcsim:latest
-        args: ["-l", "0.0.0.0:443"]
+        args: ["-l", "0.0.0.0:443", "-dc", "1", "-cluster", "3", "-host", "2", "-vm", "10", "-ds", "2"]
         ports:
         - containerPort: 443
 ---
@@ -92,7 +92,7 @@ spec:
       containers:
       - name: vcsim
         image: vmware/vcsim:latest
-        args: ["-l", "0.0.0.0:443"]
+        args: ["-l", "0.0.0.0:443", "-dc", "1", "-cluster", "3", "-host", "2", "-vm", "10", "-ds", "2"]
         ports:
         - containerPort: 443
 ---
@@ -129,7 +129,7 @@ spec:
       containers:
       - name: vcsim
         image: vmware/vcsim:latest
-        args: ["-l", "0.0.0.0:443"]
+        args: ["-l", "0.0.0.0:443", "-dc", "1", "-cluster", "3", "-host", "2", "-vm", "10", "-ds", "2"]
         ports:
         - containerPort: 443
 ---
