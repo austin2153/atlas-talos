@@ -8,6 +8,8 @@ See [docs/unifi-access.md](docs/unifi-access.md) for how to connect to the UniFi
 
 See [docs/proxmox-access.md](docs/proxmox-access.md) for how to connect to the Proxmox server.
 
+See [docs/awx-external-postgres.md](docs/awx-external-postgres.md) for how AWX's database is set up on a dedicated Proxmox LXC.
+
 ## Cluster Overview
 
 | Role | Hostname | IP |

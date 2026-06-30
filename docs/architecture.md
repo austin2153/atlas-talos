@@ -59,6 +59,7 @@ Starting with 1 control plane and 1 worker. The worker count is designed to scal
 | Proxmox bridge | `vmbr0`, VLAN tag `20` |
 | Control plane | `talos-cp.atlas.local` → `192.168.20.10` |
 | Worker 01 | `talos-worker-01.atlas.local` → `192.168.20.11` |
+| AWX Postgres LXC | `awx-postgres.atlas.local` → `192.168.20.12` |
 
 DNS entries are managed in Pi-hole (`atlas-pihole.atlas.local`). Static IPs are configured directly in the Talos machine configs rather than via DHCP reservations.
 
@@ -117,7 +118,7 @@ Once the cluster is bootstrapped, a GitOps platform layer manages all cluster se
 | `cert-manager/` | [cert-manager](https://cert-manager.io/) v1.20.2 | TLS management; bootstraps selfsigned → root CA → `atlas-ca` ClusterIssuer chain using ArgoCD sync waves |
 | `flux/` | [Flux](https://fluxcd.io/) v2.8.5 | Source-controller watches this repo; kustomize-controller applies `state/` to cluster. Auth via `flux-system-auth` secret (SSH) |
 | `kratix/` | [Kratix](https://kratix.io/) v0.125.0 | Platform engineering framework. GitStateStore writes to `state/`; Destination registers local cluster. Auth via `kratix-state-writer` secret (HTTPS PAT) |
-| `awx/` | AWX 24.6.1 | Ansible automation UI. Operator + instance pattern; postgres backend on local-path PV. Admin password in `awx-admin-password` secret |
+| `awx/` | AWX 24.6.1 | Ansible automation UI. Operator + instance pattern; postgres runs externally on a dedicated Proxmox LXC (see [awx-external-postgres.md](awx-external-postgres.md)). Admin password in `awx-admin-password` secret |
 | `vcsim/` | vmware/vcsim:latest | VMware vCenter simulator instances for testing. 4 instances: vcenter-01–04 (192.168.20.52–55) |
 
 ### Talos-Specific Gotchas
@@ -165,7 +166,7 @@ terraform apply
 ## Future Considerations
 
 - **Kratix Promises**: First promise (`proxmox-vm`) is installed and operational — provisions Proxmox VMs on demand via a Python-based workflow. Next step is expanding the promise catalog and exercising the full loop (ResourceRequest → state/ → Flux → cluster)
-- **Stateful workload resilience**: AWX postgres runs on a local-path PV; unclean node shutdowns can cause `initdb` to re-initialize an empty data directory, requiring a manual migration job re-run. Consider postgres backups or a more durable StorageClass for stateful workloads
+- **Stateful workload resilience**: AWX postgres was moved off the in-cluster `local-path` PV (which lost data twice after unclean Proxmox shutdowns) to a dedicated Proxmox LXC on ZFS storage — see [awx-external-postgres.md](awx-external-postgres.md). Consider applying the same pattern to any other stateful workload added to the cluster
 - **Additional workers**: Add IPs to `worker_ips` variable and add Pi-hole DNS entries
 - **CNI migration**: Flannel can be replaced with Cilium for eBPF-based networking and network policy support
 - **Talos Image Factory extensions**: Consider adding the QEMU guest agent extension for better Proxmox integration

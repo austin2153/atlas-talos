@@ -8,9 +8,4 @@ spec:
   loadbalancer_ip: 192.168.20.51
   admin_user: admin
   admin_password_secret: awx-admin-password
-  postgres_storage_requirements:
-    requests:
-      storage: 8Gi
-  postgres_data_volume_init: true
-  postgres_security_context_settings:
-    runAsUser: 26
+  postgres_configuration_secret: awx-postgres-configuration
