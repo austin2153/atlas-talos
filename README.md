@@ -10,6 +10,8 @@ See [docs/proxmox-access.md](docs/proxmox-access.md) for how to connect to the P
 
 See [docs/awx-external-postgres.md](docs/awx-external-postgres.md) for how AWX's database is set up on a dedicated Proxmox LXC.
 
+See [docs/proxmox-smb-share.md](docs/proxmox-smb-share.md) for the Samba file share hosted on the Proxmox 1TB WD drive.
+
 ## Cluster Overview
 
 | Role | Hostname | IP |

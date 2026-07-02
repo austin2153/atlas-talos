@@ -60,6 +60,7 @@ Starting with 1 control plane and 1 worker. The worker count is designed to scal
 | Control plane | `talos-cp.atlas.local` → `192.168.20.10` |
 | Worker 01 | `talos-worker-01.atlas.local` → `192.168.20.11` |
 | AWX Postgres LXC | `awx-postgres.atlas.local` → `192.168.20.12` |
+| SMB Share LXC | `share.atlas.local` → `192.168.20.13` |
 
 DNS entries are managed in Pi-hole (`atlas-pihole.atlas.local`). Static IPs are configured directly in the Talos machine configs rather than via DHCP reservations.
 
